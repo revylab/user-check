@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/check.py",
+      "src": "api/check_username.py",
       "use": "@vercel/python"
     },
     {
@@ -12,12 +12,12 @@
   ],
   "routes": [
     {
-      "src": "/api/check",
-      "dest": "api/check.py"
+      "src": "/api/check/(.*)",
+      "dest": "api/check_username.py"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/$1"
     }
   ]
 }
