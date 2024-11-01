@@ -1,57 +1,58 @@
-# api/check.py
-from http.client import HTTPConnection, HTTPSConnection
-import json
-from typing import Dict, List
-import asyncio
-import aiohttp
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+import httpx
+import json
+import os
+from typing import Dict
 
 app = FastAPI()
 
-# Load social media platforms configuration
-with open('platforms.json') as f:
-    PLATFORMS = json.load(f)
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-class UsernameRequest(BaseModel):
-    username: str
+# Load social media configurations
+def load_social_media_config():
+    with open('social_media.json') as f:
+        return json.load(f)
 
-async def check_username(session: aiohttp.ClientSession, platform: Dict, username: str) -> Dict:
-    try:
-        url = platform['url'].format(username=username)
-        headers = platform.get('headers', {})
-        
-        async with session.get(url, headers=headers, allow_redirects=False) as response:
-            exists = response.status != 404
-            
-            return {
-                'platform': platform['name'],
-                'exists': exists,
-                'url': url if exists else None
-            }
-    except Exception as e:
-        print(f"Error checking {platform['name']}: {str(e)}")
-        return {
-            'platform': platform['name'],
-            'exists': None,
-            'error': str(e)
-        }
-
-@app.post("/api/check")
-async def check_availability(request: UsernameRequest):
-    if not request.username or len(request.username) < 1:
-        raise HTTPException(status_code=400, detail="Username is required")
-        
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for platform in PLATFORMS:
-            task = check_username(session, platform, request.username)
-            tasks.append(task)
-            
-        results = await asyncio.gather(*tasks)
-        
-        # Filter out errors and sort by platform name
-        valid_results = [r for r in results if r['exists'] is not None]
-        valid_results.sort(key=lambda x: x['platform'])
-        
-        return valid_results
+@app.get("/api/check/{username}")
+async def check_username(username: str):
+    username = username.lower()
+    social_media = load_social_media_config()
+    results = {}
+    
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        for platform, config in social_media.items():
+            try:
+                url = config["url"].format(username=username)
+                response = await client.get(url, follow_redirects=True)
+                
+                # Check availability based on platform-specific logic
+                available = False
+                if platform == "github":
+                    available = response.status_code == 404
+                elif platform == "twitter":
+                    available = response.status_code == 404
+                elif platform == "instagram":
+                    available = response.status_code == 404
+                # Add more platform-specific checks as needed
+                
+                results[platform] = {
+                    "available": available,
+                    "url": config["url"].format(username=username),
+                    "icon": config["icon"]
+                }
+            except Exception as e:
+                results[platform] = {
+                    "available": None,
+                    "error": str(e),
+                    "icon": config["icon"]
+                }
+    
+    return results
