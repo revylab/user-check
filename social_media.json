@@ -1,0 +1,22 @@
+{
+  "github": {
+    "url": "https://github.com/{username}",
+    "icon": "github"
+  },
+  "twitter": {
+    "url": "https://twitter.com/{username}",
+    "icon": "twitter"
+  },
+  "instagram": {
+    "url": "https://instagram.com/{username}",
+    "icon": "instagram"
+  },
+  "pinterest": {
+    "url": "https://pinterest.com/{username}",
+    "icon": "pinterest"
+  },
+  "linkedin": {
+    "url": "https://linkedin.com/in/{username}",
+    "icon": "linkedin"
+  }
+}
