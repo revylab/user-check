@@ -1,22 +1,27 @@
 {
   "github": {
     "url": "https://github.com/{username}",
-    "icon": "github"
+    "icon": "github",
+    "platform_name": "GitHub"
   },
   "twitter": {
     "url": "https://twitter.com/{username}",
-    "icon": "twitter"
+    "icon": "twitter",
+    "platform_name": "Twitter/X"
   },
   "instagram": {
     "url": "https://instagram.com/{username}",
-    "icon": "instagram"
+    "icon": "instagram",
+    "platform_name": "Instagram"
   },
   "pinterest": {
     "url": "https://pinterest.com/{username}",
-    "icon": "pinterest"
+    "icon": "grid",
+    "platform_name": "Pinterest"
   },
   "linkedin": {
     "url": "https://linkedin.com/in/{username}",
-    "icon": "linkedin"
+    "icon": "linkedin",
+    "platform_name": "LinkedIn"
   }
 }
